@@ -304,8 +304,11 @@ spec:
     clusterDNS: "29.64.0.10"
     clusterDomain: "cluster.local"
     registryMirrorAddress: "100.87.0.13"
-    sshAuthorizedKeys: "@dobry_kot,@shynie42,@Mistrikoff,@godjee"
-    nodeLabels: "node-group.beget.com/name=c9b2e5-client-c5ce2e,environment=production"
+    sshAuthorizedKeys:
+    - @dobry_kot
+    - @shynie42
+    - @Mistrikoff
+    - @godjee"
 
   # Taints на нодах (передаются в MachineDeployment напрямую, без шаблонизации)
   taints:
@@ -315,7 +318,7 @@ spec:
       propagation: Always
 
   # Labels на нодах (передаются в MachineDeployment.spec.template.metadata.labels)
-  labels:
+  nodeLabels:
     environment: production
     workload-type: general
 

@@ -1,0 +1,96 @@
+{{- if not .Values.composition.developmentMode }}
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: workergroup-claim.cluster.x-k8s.io
+spec:
+{{- else }}
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositionRevision
+metadata:
+  name: {{ printf "%s-xworkergroup.in-cloud.io" .Release.Name }}
+spec:
+  revision: {{ .Values.composition.compositionRevisionNumber }}
+{{- end }}
+  compositeTypeRef:
+    apiVersion: cluster.x-k8s.io/v1alpha2
+    kind: XWorkerGroup
+  mode: Pipeline
+  pipeline:
+    - step: extra-resources
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          {{- include "workergroups.extraResources.cluster" . | nindent 10 }}
+
+{{- $kubeletConfigManifest := (include "workergroups.kubeletConfig.manifest" . ) }}
+    - step: kubelet-config-template
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |-
+            {{- $kubeletConfigManifest | nindent 12 }}
+
+{{- $KubeadmConfigGotemplatesManifest := (include "workergroups.kubeadmConfigTemplate.manifest" . ) }}
+    - step: kubeadm-config-template
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |-
+            {{- $KubeadmConfigGotemplatesManifest | nindent 12 }}
+
+{{- $begetMachineGotemplatesManifest := (include "workergroups.begetMachineTemplate.manifest" . ) }}
+    - step: begetmachinetemplate
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |-
+            {{- $begetMachineGotemplatesManifest | nindent 12 }}
+
+{{- $machineDeploymentGotemplatesManifest := (include "workergroups.machineDeployment.manifest" . ) }}
+    - step: machinedeployment
+      functionRef:
+        name: function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |-
+            {{- $machineDeploymentGotemplatesManifest | nindent 12 }}
+
+    - step: machinedeployment-observer-status
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          {{- include "workergroups.extraResources.machineDeploymentObserver" . | nindent 10 }}
+
+# USAGES
+
+    - step: usages-workergroups
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          {{- include "usages.workerGroupClient" . | nindent 10 }}

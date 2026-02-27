@@ -1,0 +1,436 @@
+{{- if not .Values.composition.developmentMode }}
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xworkergroups.cluster.x-k8s.io
+spec:
+  group: cluster.x-k8s.io
+  names:
+    kind: XWorkerGroup
+    plural: xworkergroups
+    singular: xworkergroup
+    shortNames:
+      - xwg
+  claimNames:
+    kind: WorkerGroupClaim
+    plural: workergroupclaims
+    singular: workergroupclaim
+    shortNames:
+      - wgc
+  versions:
+    - name: v1alpha1
+      referenceable: false
+      served: true
+      schema:
+        openAPIV3Schema:
+          description: XWorkerGroup is the Schema for the xworkergroup API.
+          type: object
+          required:
+            - spec
+          properties:
+            metadata:
+              type: object
+            spec:
+              type: object
+              required:
+                - parameters
+              properties:
+                parameters:
+                  type: object
+                  description: WorkerGroupSpec defines the desired state of WorkerGroup.
+                  properties:
+                    version:
+                      description: The Kubernetes version of the cluster.
+                      type: string
+                    xcluster:
+                      description: Name of core composition xcluster.
+                      type: string
+                    clusterName:
+                      description: Name of the cluster.
+                      type: string
+                    beget_clt_region:
+                      description: Beget region.
+                      type: string
+                    beget_vmt_dp_configuration_name:
+                      description: Beget data plane configuration name.
+                      type: string
+                    image:
+                      description: Name of the golden image.
+                      type: string
+                    networkTag:
+                      description: Network tag.
+                      type: string
+                    usePrivateNetwork:
+                      description: usePrivateNetwork on VM.
+                      type: boolean
+                    serverName:
+                      description: Beget host serverName.
+                      type: string
+                    replicas:
+                      description: Number of workergroup replicas.
+                      type: integer
+                    configuration:
+                      description: Configuration of workergroup.
+                      type: object
+                      properties:
+                        cpuCount:
+                          description: CPU count.
+                          type: integer
+                        diskSize:
+                          description: Disk size.
+                          type: integer
+                        memory:
+                          description: Memory.
+                          type: integer
+                    labels:
+                      description: Labels of workergroup.
+                      type: object
+                      additionalProperties:
+                          type: string
+                    taints:
+                      description: Taints of workergroup.
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          key:
+                            type: string
+                          value:
+                            type: string
+                          effect:
+                            type: string
+                    kubeletConfiguration:
+                      description: Kubelet configuration override to merge into config-custom.yaml in workergroup.
+                      type: object
+                      properties:
+                        maxPods:
+                          type: integer
+                          description: Max number of pods per node.
+                        clusterDNS:
+                          type: string
+                          description: Cluster DNS address.
+                        clusterDomain:
+                          type: string
+                          description: Cluster DNS domain name.
+                        imageMinimumGCAge:
+                          type: string
+                          description: The minimum age of images before garbage collection starts (e.g., "2h").
+                        imageMaximumGCAge:
+                          type: string
+                          description: The maximum age of images before garbage collection happens (e.g., "24h").
+                        imageGCHighThresholdPercent:
+                          type: integer
+                          description: The high threshold for image garbage collection based on disk usage percentage.
+                        imageGCLowThresholdPercent:
+                          type: integer
+                          description: The low threshold for image garbage collection based on disk usage percentage.
+                        cpuCFSQuota:
+                          type: boolean
+                          description: Whether to enforce CFS quota on CPU usage.
+                        kubeReserved:
+                          type: object
+                          description: Resources reserved for Kubernetes components such as Kubelet, Scheduler, Controller Manager, etc.
+                          properties:
+                            cpu:
+                              type: string
+                              description: Amount of CPU resources reserved for Kubernetes components (e.g., "500m").
+                            memory:
+                              type: string
+                              description: Amount of memory resources reserved for Kubernetes components (e.g., "1Gi").
+                        systemReserved:
+                          type: object
+                          description: Resources reserved for system components on the node (e.g., OS-level daemons).
+                          additionalProperties:
+                            type: string
+                        shutdownGracePeriod:
+                          type: string
+                          description: The grace period (in Duration format, e.g., "30s" or "1m") before Kubelet terminates the node during shutdown.
+                        evictionHard:
+                          type: object
+                          description: |
+                            Thresholds for hard eviction. Example: { "memory.available": "200Mi" }
+                          additionalProperties:
+                            type: string
+                        evictionSoft:
+                          type: object
+                          description: |
+                            Thresholds for soft eviction. Example: { "memory.available": "300Mi" }
+                          additionalProperties:
+                            type: string
+                        evictionSoftGracePeriod:
+                          type: object
+                          description: |
+                            Grace periods for soft eviction signals. Example: { "memory.available": "30s" }
+                          additionalProperties:
+                            type: string
+                        evictionPressureTransitionPeriod:
+                          type: string
+                          description: The duration (in Duration format, e.g., "5m" or "1h") before transitioning out of an eviction pressure condition. Default is "5m".
+                        evictionMaxPodGracePeriod:
+                          type: integer
+                          description: The maximum grace period (in seconds) allowed for pod termination during eviction.
+                        evictionMinimumReclaim:
+                          type: object
+                          description: Minimum reclaimable resources before eviction starts.
+                          additionalProperties:
+                            type: string
+                        mergeDefaultEvictionSettings:
+                          type: boolean
+                          description: Whether to merge default eviction settings from the Kubelet's configuration.
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                machineDeploymentStatus:
+                  type: object
+                  properties:
+                    desiredReplicas:
+                      type: integer
+                    v1beta2:
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    conditions:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+    - name: v1alpha2
+      referenceable: true
+      served: true
+      schema:
+        openAPIV3Schema:
+          description: XWorkerGroup is the Schema for the xworkergroup API.
+          type: object
+          required:
+            - spec
+          properties:
+            metadata:
+              type: object
+            spec:
+              type: object
+              required:
+                - parameters
+              properties:
+                parameters:
+                  type: object
+                  description: WorkerGroupSpec defines the desired state of WorkerGroup.
+                  properties:
+                    version:
+                      description: The Kubernetes version of the cluster.
+                      type: string
+                    xcluster:
+                      description: Name of core composition xcluster.
+                      type: string
+                    clusterDNS:
+                      type: string
+                      description: Cluster DNS address.
+                    clusterDomain:
+                      type: string
+                      description: Cluster DNS domain name.
+                    clusterName:
+                      description: Name of the cluster.
+                      type: string
+                    beget_clt_region:
+                      description: Beget region.
+                      type: string
+                    beget_vmt_dp_configuration_name:
+                      description: Beget data plane configuration name.
+                      type: string
+                    image:
+                      description: Name of the golden image.
+                      type: string
+                    networkTag:
+                      description: Network tag.
+                      type: string
+                    usePrivateNetwork:
+                      description: usePrivateNetwork on VM.
+                      type: boolean
+                    serverName:
+                      description: Beget host serverName.
+                      type: string
+                    replicas:
+                      description: Number of workergroup replicas.
+                      type: integer
+                    configuration:
+                      description: Configuration of workergroup.
+                      type: object
+                      properties:
+                        cpuCount:
+                          description: CPU count.
+                          type: integer
+                        diskSize:
+                          description: Disk size.
+                          type: integer
+                        memory:
+                          description: Memory.
+                          type: integer
+                    labels:
+                      description: Labels of workergroup.
+                      type: object
+                      additionalProperties:
+                          type: string
+                    taints:
+                      description: |-
+                        taints are the node taints that Cluster API will manage.
+                        This list is not necessarily complete: other Kubernetes components may add or remove other taints from nodes,
+                        e.g. the node controller might add the node.kubernetes.io/not-ready taint.
+                        Only those taints defined in this list will be added or removed by core Cluster API controllers.
+
+                        There can be at most 64 taints.
+                        A pod would have to tolerate all existing taints to run on the corresponding node.
+
+                        NOTE: This list is implemented as a "map" type, meaning that individual elements can be managed by different owners.
+                      items:
+                        description: MachineTaint defines a taint equivalent to corev1.Taint,
+                          but additionally having a propagation field.
+                        properties:
+                          effect:
+                            description: effect is the effect for the taint. Valid values
+                              are NoSchedule, PreferNoSchedule and NoExecute.
+                            enum:
+                            - NoSchedule
+                            - PreferNoSchedule
+                            - NoExecute
+                            type: string
+                          key:
+                            description: |-
+                              key is the taint key to be applied to a node.
+                              Must be a valid qualified name of maximum size 63 characters
+                              with an optional subdomain prefix of maximum size 253 characters,
+                              separated by a `/`.
+                            maxLength: 317
+                            minLength: 1
+                            pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\/)?([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]$
+                            type: string
+                            x-kubernetes-validations:
+                            - message: key must be a valid qualified name of max size 63
+                                characters with an optional subdomain prefix of max size
+                                253 characters
+                              rule: 'self.contains(''/'') ? ( self.split(''/'') [0].size()
+                                <= 253 && self.split(''/'') [1].size() <= 63 && self.split(''/'').size()
+                                == 2 ) : self.size() <= 63'
+                          propagation:
+                            default: Always
+                            description: |-
+                              propagation defines how this taint should be propagated to nodes.
+                              Valid values are 'Always' and 'OnInitialization'.
+                              Always: The taint will be continuously reconciled. If it is not set for a node, it will be added during reconciliation.
+                              OnInitialization: The taint will be added during node initialization. If it gets removed from the node later on it will not get added again.
+                            enum:
+                            - Always
+                            - OnInitialization
+                            type: string
+                          value:
+                            description: |-
+                              value is the taint value corresponding to the taint key.
+                              It must be a valid label value of maximum size 63 characters.
+                            maxLength: 63
+                            minLength: 1
+                            pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
+                            type: string
+                        required:
+                        - effect
+                        - key
+                        - propagation
+                        type: object
+                      maxItems: 64
+                      minItems: 1
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - key
+                      - effect
+                      x-kubernetes-list-type: map
+                    kubeletConfiguration:
+                      description: Kubelet configuration override to merge into config-custom.yaml in workergroup.
+                      type: object
+                      properties:
+                        maxPods:
+                          type: integer
+                          description: Max number of pods per node.
+                        imageMinimumGCAge:
+                          type: string
+                          description: The minimum age of images before garbage collection starts (e.g., "2h").
+                        imageMaximumGCAge:
+                          type: string
+                          description: The maximum age of images before garbage collection happens (e.g., "24h").
+                        imageGCHighThresholdPercent:
+                          type: integer
+                          description: The high threshold for image garbage collection based on disk usage percentage.
+                        imageGCLowThresholdPercent:
+                          type: integer
+                          description: The low threshold for image garbage collection based on disk usage percentage.
+                        cpuCFSQuota:
+                          type: boolean
+                          description: Whether to enforce CFS quota on CPU usage.
+                        kubeReserved:
+                          type: object
+                          description: Resources reserved for Kubernetes components such as Kubelet, Scheduler, Controller Manager, etc.
+                          properties:
+                            cpu:
+                              type: string
+                              description: Amount of CPU resources reserved for Kubernetes components (e.g., "500m").
+                            memory:
+                              type: string
+                              description: Amount of memory resources reserved for Kubernetes components (e.g., "1Gi").
+                        systemReserved:
+                          type: object
+                          description: Resources reserved for system components on the node (e.g., OS-level daemons).
+                          additionalProperties:
+                            type: string
+                        shutdownGracePeriod:
+                          type: string
+                          description: The grace period (in Duration format, e.g., "30s" or "1m") before Kubelet terminates the node during shutdown.
+                        evictionHard:
+                          type: object
+                          description: |
+                            Thresholds for hard eviction. Example: { "memory.available": "200Mi" }
+                          additionalProperties:
+                            type: string
+                        evictionSoft:
+                          type: object
+                          description: |
+                            Thresholds for soft eviction. Example: { "memory.available": "300Mi" }
+                          additionalProperties:
+                            type: string
+                        evictionSoftGracePeriod:
+                          type: object
+                          description: |
+                            Grace periods for soft eviction signals. Example: { "memory.available": "30s" }
+                          additionalProperties:
+                            type: string
+                        evictionPressureTransitionPeriod:
+                          type: string
+                          description: The duration (in Duration format, e.g., "5m" or "1h") before transitioning out of an eviction pressure condition. Default is "5m".
+                        evictionMaxPodGracePeriod:
+                          type: integer
+                          description: The maximum grace period (in seconds) allowed for pod termination during eviction.
+                        evictionMinimumReclaim:
+                          type: object
+                          description: Minimum reclaimable resources before eviction starts.
+                          additionalProperties:
+                            type: string
+                        mergeDefaultEvictionSettings:
+                          type: boolean
+                          description: Whether to merge default eviction settings from the Kubelet's configuration.
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+              properties:
+                machineDeploymentStatus:
+                  type: object
+                  properties:
+                    desiredReplicas:
+                      type: integer
+                    readyReplicas:
+                      type: integer
+                    upToDateReplicas:
+                      type: integer
+                    conditions:
+                      type: array
+                      items:
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+
+{{- end }}
+

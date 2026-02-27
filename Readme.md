@@ -291,6 +291,11 @@ spec:
     image: "k8s-customer:latest"
     usePrivateNetwork: "true"
     networkTag: "vps"
+    sshKeyIds:
+    - @dobry_kot
+    - @shynie42
+    - @Mistrikoff
+    - @godjee"
 
   # Плоский набор переменных → WGBootstrapTemplate → KubeadmConfigTemplate
   # Каждый ключ = {{ .ключ }} в шаблоне. Произвольный набор.
@@ -304,11 +309,6 @@ spec:
     clusterDNS: "29.64.0.10"
     clusterDomain: "cluster.local"
     registryMirrorAddress: "100.87.0.13"
-    sshAuthorizedKeys:
-    - @dobry_kot
-    - @shynie42
-    - @Mistrikoff
-    - @godjee"
 
   # Taints на нодах (передаются в MachineDeployment напрямую, без шаблонизации)
   taints:
@@ -366,9 +366,9 @@ status:
     - kind: KubeadmConfigTemplate
       name: "...-kct-old67890"
 
-  machineDeployment:
+  machineDeploymentStatus:
     name: "c9b2e5-client-c5ce2e"
-    replicas: 1
+    desiredReplicas: 1
     readyReplicas: 1
     upToDateReplicas: 1
     conditions: [...]

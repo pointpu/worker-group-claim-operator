@@ -328,8 +328,11 @@ spec:
       rollingUpdate:
         maxSurge: 1
         maxUnavailable: 1
-
-  nodeDrainTimeout: 1m
+  
+  deletion:
+    nodeDeletionTimeoutSeconds: 120
+    nodeDrainTimeoutSeconds: 60
+    nodeVolumeDetachTimeoutSeconds: 60
 ```
 
 ### 4.3. Важные свойства `infrastructure` и `bootstrap`
@@ -597,7 +600,10 @@ spec:
         apiGroup: infrastructure.cluster.x-k8s.io
         kind: BegetMachineTemplate
         name: c9b2e5-client-c5ce2e-bmt-897131eb    # ← текущий rendered BMT
-      nodeDrainTimeout: 1m                       # ← spec.nodeDrainTimeout
+      deletion:
+        nodeDeletionTimeoutSeconds: 120          # ← spec.deletion.nodeDeletionTimeoutSeconds
+        nodeDrainTimeoutSeconds: 60              # ← spec.deletion.nodeDrainTimeoutSeconds
+        nodeVolumeDetachTimeoutSeconds: 60       # ← spec.deletion.nodeVolumeDetachTimeoutSeconds
       taints:                                    # ← spec.taints
         - key: testkey
           value: testvalue
